@@ -1,8 +1,8 @@
-# Google_Image_Crawler
+# Google-Image Crawler
 
 ## <strong>Introduction</strong>
 
- Build an application to crawl Google Images with framework Tkinter Python and icrawler libraries.
+ Build an application to crawl Google Images with Tkinter Python framework and icrawler libraries.
 
  "This package is a mini framework of web crawlers. With modularization design, it is easy to use and extend. It supports media data like images and videos very well, and can also be applied to texts and other type of files. Scrapy is heavy and powerful, while icrawler is tiny and flexible.
 
@@ -38,7 +38,13 @@ Clone the project into your computer's home directory
 git clone https://github.com/JosephThien2000/Google_Image_Crawler.git
 ```
 
-Import necessary libraries
+First, you need to download the necessary libraries and modules. Open your <strong>`Command Prompt`</strong> or <strong>`PowerShell`</strong> in the current project's directory and run a command line below:
+
+```bash
+pip install -r requirements.txt
+```
+
+All necessary libraries and modules we need to be imported
 
 ```python
 # Import necessary libraries

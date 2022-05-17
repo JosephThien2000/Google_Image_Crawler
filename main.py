@@ -80,12 +80,15 @@ class Main(Frame):
         # Buttons
         self.btn_search = ttk.Button(self.inputs, text="Search", command=self.search_button)
         self.btn_search.grid(row=2, column=0, sticky="ns", pady=10)
-        self.btn_save = ttk.Button(self.inputs, text="Save", command=self.save_Button)
-        self.btn_save.grid(row=2, column=1, sticky="ns", pady=10)
+
+        self.btn_save_resize = ttk.Button(self.inputs, text="Save and Resize", command=self.save_Resize_Button)
+        self.btn_save_resize.grid(row=2, column=1, sticky="ns", pady=10)
+
+        self.btn_save_origin = ttk.Button(self.inputs, text="Save originally", command=self.save_Original_Button)
+        self.btn_save_origin.grid(row=2, column=2, sticky="ns", pady=10)
+
         self.btn_show_image = ttk.Button(self.inputs, text="Show Image", command=self.open_window)
-        self.btn_show_image.grid(row=2, column=2, sticky="ns", pady=10)
-        self.btn_close = ttk.Button(self.inputs, text="Close", command=self.quit)
-        self.btn_close.grid(row=2, column=3, sticky="ns", pady=10)
+        self.btn_show_image.grid(row=2, column=3, sticky="ns", pady=10)
 
     # Search button method
     def search_button(self):
@@ -110,7 +113,7 @@ class Main(Frame):
         self.ent_folder_shower.delete(0, END)
         self.ent_folder_shower.insert(0, save_dir)
         
-        with open("D:/Hahalolo/[TASK]-CrawlData/crawl_image/save_dir.txt", "w") as f:
+        with open(f"{parent_path}/save_dir.txt", "w") as f:
             f.write(save_dir)
 
     # Button click method
@@ -135,14 +138,6 @@ class Main(Frame):
             self.photo = ImageTk.PhotoImage(self.photo)
             self.photo_list.append(self.photo)
             self.name_image_list.append(img)
-
-        # Create listbox for containing images
-        # self.listbox = Listbox(self.window, width=100, selectmode="multiple")
-        # self.listbox.grid(row=0, column=0, columnspan=3, sticky="nsew")
-
-        # Create frame for images
-        # self.frm_image = ttk.Frame(self.window, borderwidth=5)
-        # self.frm_image.grid(row=0, columnspan=3,  sticky="nsew")
 
         # Create scrollbar
         self.scrollbar = ScrolledText(self.window, borderwidth=5, wrap="none")
@@ -185,12 +180,14 @@ class Main(Frame):
             self.var.set(1)
             self.cb_list[i].select()
             self.cb_list[i].config(bg="red")
+            print("Select all!")
 
     def deselect_all_Button(self):
         for i, self.var in enumerate(self.var_list):
             self.var.set(0)
             self.cb_list[i].deselect() 
             self.cb_list[i].config(bg="white")
+            print("Unselect all!")
 
     def select_deselect_button(self):
         if self.btn_select_all.config("text")[-1] == "Select":
@@ -207,6 +204,7 @@ class Main(Frame):
         """
         # global cb_list
         self.scrollbar.update()
+        self.label_name = self.lbl_entry.get()
         try:
             img_list_confirm.clear()
             for i, var in enumerate(self.var_list):
@@ -221,26 +219,56 @@ class Main(Frame):
             pass
     
     # Save button method
-    def save_Button(self):
+    def save_Resize_Button(self):
         global download_folder, img_list_confirm
         self.scrollbar.update()
-        with open("D:/Hahalolo/[TASK]-CrawlData/crawl_image/save_dir.txt", "r") as f:
-            path_dir = f.read()
-
+        with open(f"{parent_path}/save_dir.txt", "r") as f:
+            path_dir = f.readline()
+        
+        subdir_name = self.ent_keyword.get()
         # creat a new directory, change, and save image
-        change_dir(path_dir)
-        image_dir = path_dir+'/'+"image"
+        change_dir_Resize(path_dir, subdir_name)
+        image_dir = path_dir + "/images/" + subdir_name + "_resized"
         # Check in the confirmed images list and download it
         for img_confirm in img_list_confirm:
             path_download = download_folder +  img_confirm
             url_extension = img_confirm.split(".")[-1]
-            download_image(path_download, str(len(os.listdir(image_dir))+1)+"."+url_extension)        
+            name_image = self.label_name + "_" + str(len(os.listdir(image_dir))+1) +"." + url_extension
+            download_image_resize(path_download, name_image)      
+        # print("Downloaded: ", name_image)
+
         sleep(1)
         # Show up the folder you save currently
         os.startfile(image_dir)
         # Shift the path from path_download to parent path
         os.chdir(parent_path) # path
-        print("Sucessfully save images!")
+        print("Sucessfully save and resize images!")
+
+         # Save button method
+    def save_Original_Button(self):
+        global download_folder, img_list_confirm
+        self.scrollbar.update()
+        with open(f"{parent_path}/save_dir.txt", "r") as f:
+            path_dir = f.read()
+        
+        subdir_name = self.ent_keyword.get()
+        # creat a new directory, change, and save image
+        change_dir_Original(path_dir, subdir_name)
+        image_dir = path_dir + '/' + "images/" + subdir_name + "_original"
+        # Check in the confirmed images list and download it
+        for img_confirm in img_list_confirm:
+            path_download = download_folder +  img_confirm
+            url_extension = img_confirm.split(".")[-1]
+            name_image = self.label_name + "_" + str(len(os.listdir(image_dir))+1) +"." + url_extension
+            download_image_originally(path_download, name_image)      
+        # print("Downloaded: ", name_image)
+
+        sleep(1)
+        # Show up the folder you save currently
+        os.startfile(image_dir)
+        # Shift the path from path_download to parent path
+        os.chdir(parent_path) # path
+        print("Sucessfully save Originally images!")
 
     # Create a new top level
     def open_window(self):
@@ -269,6 +297,12 @@ class Main(Frame):
         self.btn_confirm.grid(row = 1, sticky="ew")
         self.btn_cancel = ttk.Button(self.frm_buttons, text="Cancel", command=self.window.destroy)
         self.btn_cancel.grid(row=2, sticky="ew")
+
+        # Name for Image Label
+        self.lbl_name = ttk.Label(self.frm_buttons, text="Label of images:")
+        self.lbl_name.grid(row = 3, sticky="ew")
+        self.lbl_entry = ttk.Entry(self.frm_buttons)
+        self.lbl_entry.grid(row = 4, sticky="ew")
 
 # Root class
 class Root(Tk):
