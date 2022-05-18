@@ -14,6 +14,14 @@ It also provides built-in crawlers for popular image sites like Flickr and searc
 
  Use the package tkinter framework to build an application (If you prefer to find out more information about the documentation, please click this link [tkinter-documentation](https://tkdocs.com/tutorial/install.html))
 
+ First, you need to download the necessary libraries and modules. Open your <strong>`Command Prompt`</strong> or <strong>`PowerShell`</strong> in the current project's directory and run a command line below:
+
+```bash
+pip install -r requirements.txt
+```
+
+### <strong>- Here is some of necessary libraries to download -</strong>
+
  ```bash 
 pip install tk
  ```
@@ -38,12 +46,6 @@ Clone the project into your computer's home directory
 git clone https://github.com/JosephThien2000/Google_Image_Crawler.git
 ```
 
-First, you need to download the necessary libraries and modules. Open your <strong>`Command Prompt`</strong> or <strong>`PowerShell`</strong> in the current project's directory and run a command line below:
-
-```bash
-pip install -r requirements.txt
-```
-
 All necessary libraries and modules we need to be imported
 
 ```python
@@ -58,8 +60,9 @@ from download_image import *
 from google_crawler import *
 from pathlib import *
 from tkinter.scrolledtext import ScrolledText
+from crawler import *
+import re
 ```
-
 Next we open the <strong>`Command Prompt`</strong> or <strong>`PowerShell`</strong> that references to the path you clone the project down to run this code
 
 ```bash
@@ -89,3 +92,9 @@ Please make sure to update tests as appropriate.
 [Tkinter OOF](https://www.pythontutorial.net/tkinter/tkinter-object-oriented-frame/)
 
 [Tkinter tutorial](https://realpython.com/python-gui-tkinter/#building-a-text-editor-example-app)
+
+[Web Scraping in basics](https://realpython.com/python-web-scraping-practical-introduction/)
+
+[MechanicalSoup](https://analyticsindiamag.com/mechanicalsoup-web-scraping-custom-dataset-tutorial/)
+
+[Icrawler documentation](https://icrawler.readthedocs.io/en/latest/builtin.html#url-list-crawler)

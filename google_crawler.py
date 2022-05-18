@@ -16,8 +16,13 @@ def google_crawler(keyword, num_images):
                 downloader_threads=4,
                 storage={'root_dir': 'download'}
             )
+            filters = dict(
+                size='large',
+                color='orange',
+                license='commercial,modify',
+                date=((2017, 1, 1), (2017, 11, 30)))
             # start the crawler with our keyword and number of images
-            google_crawler.crawl(keyword=str(keyword), max_num=int(num_images))
+            google_crawler.crawl(keyword=str(keyword), max_num=int(num_images), filters=filters, offset=0, file_idx_offset=0)
             # break out of the loop
             break
         except Exception as e:

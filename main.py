@@ -9,10 +9,13 @@ from download_image import *
 from google_crawler import *
 from pathlib import *
 from tkinter.scrolledtext import ScrolledText
+from crawler import *
+import re
 
 print(os.getcwd())
 parent_path = os.path.dirname(os.path.abspath(__file__))
 download_folder = os.path.join(parent_path, "download/")
+output_folder = os.path.join(parent_path, "output/")
 img_list_confirm = []
 condition = True
 
@@ -59,7 +62,7 @@ class Main(Frame):
         self.ent_folder_shower = ttk.Entry(self.frm_folder_shower)
         self.ent_folder_shower.grid(row=1, columnspan=3, sticky="wens", pady=10)
 
-        # Frame inputs
+# Frame inputs
         self.inputs = ttk.Frame(self.frm_main, borderwidth=1)
         self.inputs.columnconfigure([0,1,2], weight=1)
         self.inputs.rowconfigure([0,1,2], weight=1)
@@ -67,9 +70,15 @@ class Main(Frame):
 
         # Keyword
         self.lbl_keyword = ttk.Label(self.inputs, text="Keyword")
-        self.lbl_keyword.grid(row=0, columnspan=3, sticky="wnse")
+        self.lbl_keyword.grid(row=0, column=0, sticky="wnse")
         self.ent_keyword = ttk.Entry(self.inputs)
-        self.ent_keyword.grid(row=1, columnspan=3, sticky="wens", pady=10)
+        self.ent_keyword.grid(row=1, column=0, sticky="wens", pady=10)
+
+        # Url
+        self.lbl_url = ttk.Label(self.inputs, text="Url")
+        self.lbl_url.grid(row=0, column=1, columnspan=2, sticky="wnse")
+        self.ent_url = ttk.Entry(self.inputs)
+        self.ent_url.grid(row=1, column=1, columnspan=2, sticky="wens", pady=10)
 
         # Number of images
         self.lbl_num_page = ttk.Label(self.inputs, text="Number of images")
@@ -92,17 +101,30 @@ class Main(Frame):
 
     # Search button method
     def search_button(self):
-        # check if directory exists
-        if os.path.exists(download_folder):
-            print("Folder exists!") 
-            for img in os.listdir(download_folder):
-                os.remove(download_folder + img)
-            os.rmdir(download_folder)
-            keyword = self.ent_keyword.get()
-            google_crawler(keyword, self.num_page.get())
-        else:
-            keyword = self.ent_keyword.get()
-            google_crawler(keyword, self.num_page.get())
+        if self.ent_keyword.get() != "":
+            # check if directory exists
+            if os.path.exists(download_folder):
+                print("Folder exists!") 
+                for img in os.listdir(download_folder):
+                    os.remove(download_folder + img)
+                os.rmdir(download_folder)
+                keyword = self.ent_keyword.get()
+                google_crawler(keyword, self.num_page.get())
+            else:
+                keyword = self.ent_keyword.get()
+                google_crawler(keyword, self.num_page.get())
+        if self.ent_url.get() != "":
+            # check if directory exists
+            if os.path.exists(output_folder):
+                print("Folder exists!") 
+                for img in os.listdir(output_folder):
+                    os.remove(output_folder + img)
+                os.rmdir(output_folder)
+                self.url = self.ent_url.get()
+                crawl(self.url)
+            else:
+                self.url = self.ent_url.get()
+                crawl(self.url)
 
     # Folder picker button method
     def folder_picker_button(self):
@@ -130,15 +152,25 @@ class Main(Frame):
         self.var_list = []
         self.window.update()
         
-        # Read images in download_folder
-        for img in os.listdir(download_folder):
-            self.path_img = os.path.join(download_folder, img)
-            self.photo = Image.open(self.path_img)
-            self.photo = self.photo.resize((224, 224))
-            self.photo = ImageTk.PhotoImage(self.photo)
-            self.photo_list.append(self.photo)
-            self.name_image_list.append(img)
+        if self.ent_keyword.get() != "":
+            # Read images in download_folder
+            for img in os.listdir(download_folder):
+                self.path_img = os.path.join(download_folder, img)
+                self.photo = Image.open(self.path_img)
+                self.photo = self.photo.resize((224, 224))
+                self.photo = ImageTk.PhotoImage(self.photo)
+                self.photo_list.append(self.photo)
+                self.name_image_list.append(img)
 
+        if self.ent_url.get() != "":
+            # Read images in output
+            for img in os.listdir(output_folder):
+                self.path_img = os.path.join(output_folder, img)
+                self.photo = Image.open(self.path_img)
+                self.photo = self.photo.resize((224, 224))
+                self.photo = ImageTk.PhotoImage(self.photo)
+                self.photo_list.append(self.photo)
+                self.name_image_list.append(img)
         # Create scrollbar
         self.scrollbar = ScrolledText(self.window, borderwidth=5, wrap="none")
         self.scrollbar.grid(row=0, column=0, columnspan=3, sticky="nsew")
@@ -204,7 +236,10 @@ class Main(Frame):
         """
         # global cb_list
         self.scrollbar.update()
-        self.label_name = self.lbl_entry.get()
+        if self.ent_keyword .get() != "":
+            self.label_name = self.lbl_entry.get()
+        if self.ent_url .get() != "":
+            self.label_name = self.lbl_entry.get()
         try:
             img_list_confirm.clear()
             for i, var in enumerate(self.var_list):
@@ -220,22 +255,40 @@ class Main(Frame):
     
     # Save button method
     def save_Resize_Button(self):
-        global download_folder, img_list_confirm
+        global download_folder, img_list_confirm, output_folder
         self.scrollbar.update()
-        with open(f"{parent_path}/save_dir.txt", "r") as f:
-            path_dir = f.readline()
+        if self.ent_keyword .get() != "":
+            with open(f"{parent_path}/save_dir.txt", "r") as f:
+                path_dir = f.readline()
+            
+            subdir_name = self.ent_keyword.get()
+            # creat a new directory, change, and save image
+            change_dir_Resize(path_dir, subdir_name)
+            image_dir = path_dir + "/images/" + subdir_name + "_resized"
+            # Check in the confirmed images list and download it
+            for img_confirm in img_list_confirm:
+                path_download = download_folder +  img_confirm
+                url_extension = img_confirm.split(".")[-1]
+                name_image = self.label_name + "_" + str(len(os.listdir(image_dir))+1) +"." + url_extension
+                download_image_resize(path_download, name_image)      
+            # print("Downloaded: ", name_image)
         
-        subdir_name = self.ent_keyword.get()
-        # creat a new directory, change, and save image
-        change_dir_Resize(path_dir, subdir_name)
-        image_dir = path_dir + "/images/" + subdir_name + "_resized"
-        # Check in the confirmed images list and download it
-        for img_confirm in img_list_confirm:
-            path_download = download_folder +  img_confirm
-            url_extension = img_confirm.split(".")[-1]
-            name_image = self.label_name + "_" + str(len(os.listdir(image_dir))+1) +"." + url_extension
-            download_image_resize(path_download, name_image)      
-        # print("Downloaded: ", name_image)
+        if self.ent_url .get() != "":
+            with open(f"{parent_path}/save_dir.txt", "r") as f:
+                path_dir = f.readline()
+            
+            pattern = re.sub("http.://", "", self.ent_url.get())
+            subdir_name = pattern.strip('/r/n/t/')
+            # creat a new directory, change, and save image
+            change_dir_Resize(path_dir, subdir_name)
+            image_dir = path_dir + "/images/" + subdir_name + "_resized"
+            # Check in the confirmed images list and download it
+            for img_confirm in img_list_confirm:
+                path_download = output_folder +  img_confirm
+                url_extension = img_confirm.split(".")[-1]
+                name_image = self.label_name + "_" + str(len(os.listdir(image_dir))+1) +"." + url_extension
+                download_image_resize(path_download, name_image)
+            # print("Downloaded: ", name_image)
 
         sleep(1)
         # Show up the folder you save currently
@@ -248,20 +301,37 @@ class Main(Frame):
     def save_Original_Button(self):
         global download_folder, img_list_confirm
         self.scrollbar.update()
-        with open(f"{parent_path}/save_dir.txt", "r") as f:
-            path_dir = f.read()
-        
-        subdir_name = self.ent_keyword.get()
-        # creat a new directory, change, and save image
-        change_dir_Original(path_dir, subdir_name)
-        image_dir = path_dir + '/' + "images/" + subdir_name + "_original"
-        # Check in the confirmed images list and download it
-        for img_confirm in img_list_confirm:
-            path_download = download_folder +  img_confirm
-            url_extension = img_confirm.split(".")[-1]
-            name_image = self.label_name + "_" + str(len(os.listdir(image_dir))+1) +"." + url_extension
-            download_image_originally(path_download, name_image)      
-        # print("Downloaded: ", name_image)
+        if self.ent_keyword .get() != "":
+            with open(f"{parent_path}/save_dir.txt", "r") as f:
+                path_dir = f.read()
+            
+            subdir_name = self.ent_keyword.get()
+            # creat a new directory, change, and save image
+            change_dir_Original(path_dir, subdir_name)
+            image_dir = path_dir + '/' + "images/" + subdir_name + "_original"
+            # Check in the confirmed images list and download it
+            for img_confirm in img_list_confirm:
+                path_download = download_folder +  img_confirm
+                url_extension = img_confirm.split(".")[-1]
+                name_image = self.label_name + "_" + str(len(os.listdir(image_dir))+1) +"." + url_extension
+                download_image_originally(path_download, name_image)      
+            # print("Downloaded: ", name_image)
+        if self.ent_url .get() != "":
+            with open(f"{parent_path}/save_dir.txt", "r") as f:
+                path_dir = f.read()
+
+            pattern = re.sub("http.://", "", self.ent_url.get())
+            subdir_name = pattern.strip('/r/n/t/')
+            # creat a new directory, change, and save image
+            change_dir_Original(path_dir, subdir_name)
+            image_dir = path_dir + '/' + "images/" + subdir_name + "_original"
+            # Check in the confirmed images list and download it
+            for img_confirm in img_list_confirm:
+                path_download = output_folder +  img_confirm
+                url_extension = img_confirm.split(".")[-1]
+                name_image = self.label_name + "_" + str(len(os.listdir(image_dir))+1) +"." + url_extension
+                download_image_originally(path_download, name_image)
+            # print("Downloaded: ", name_image)
 
         sleep(1)
         # Show up the folder you save currently
