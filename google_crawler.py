@@ -22,7 +22,12 @@ def google_crawler(keyword, num_images):
                 license='commercial,modify',
                 date=((2017, 1, 1), (2017, 11, 30)))
             # start the crawler with our keyword and number of images
-            google_crawler.crawl(keyword=str(keyword), max_num=int(num_images), filters=filters, offset=0, file_idx_offset=0)
+            google_crawler.crawl(
+                keyword=str(keyword)
+                , max_num=int(num_images)
+                , filters=filters
+                , offset=0, file_idx_offset=0
+                , min_size=(256, 256))
             # break out of the loop
             break
         except Exception as e:

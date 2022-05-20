@@ -278,7 +278,7 @@ class Main(Frame):
                 path_dir = f.readline()
             
             pattern = re.sub("http.://", "", self.ent_url.get())
-            subdir_name = pattern.strip('/r/n/t/')
+            subdir_name = pattern.strip('/r/n/t').replace("/", "_")
             # creat a new directory, change, and save image
             change_dir_Resize(path_dir, subdir_name)
             image_dir = path_dir + "/images/" + subdir_name + "_resized"
@@ -321,7 +321,7 @@ class Main(Frame):
                 path_dir = f.read()
 
             pattern = re.sub("http.://", "", self.ent_url.get())
-            subdir_name = pattern.strip('/r/n/t/')
+            subdir_name = pattern.strip('/r/n/t').replace('/', '_')
             # creat a new directory, change, and save image
             change_dir_Original(path_dir, subdir_name)
             image_dir = path_dir + '/' + "images/" + subdir_name + "_original"
