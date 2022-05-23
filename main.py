@@ -14,7 +14,7 @@ import re
 
 print(os.getcwd())
 parent_path = os.path.dirname(os.path.abspath(__file__))
-download_folder = os.path.join(parent_path, "download/")
+download_folder = os.path.join(parent_path, "download/")                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
 output_folder = os.path.join(parent_path, "output/")
 img_list_confirm = []
 condition = True
@@ -348,9 +348,11 @@ class Main(Frame):
         self.window = Toplevel(self.frm_main)
         self.window.title("Show Data")
         # self.window.geometry("1000x600")
-        self.window.resizable(False, False)
+        self.window.resizable(True, True)
+        self.window.configure(background='#d9d9d9')
+        # self.window.focus_set()
 
-        # self.window.rowconfigure([0,1], weight=1)
+        self.window.rowconfigure(0, weight=1)
         self.window.columnconfigure([0,1,2,3], weight=1)
 
         # Show images
